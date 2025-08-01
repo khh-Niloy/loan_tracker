@@ -1,30 +1,32 @@
 import { User } from "../user/user.model";
-import { IPayable } from "./payable.interface";
+import { INote, IPayable } from "./payable.interface";
 import { Payable } from "./payable.model";
 
-const loanPayableServices = async(payload: {name: string, loanTaker_phoneNumber: string, loanGiver_phoneNumber : string} & Partial<IPayable>)=>{
+const loanPayableServices = async(payload: {loanGiverName: string, loanTakerPhoneNumber: string, loanGiverPhoneNumber : string} & Partial<IPayable>)=>{
     if(!payload.amount){
         throw new Error("please add an amount");
     }
 
-    if(!payload.loanTaker_phoneNumber){
+    // console.log(payload)
+
+    if(!payload.loanTakerPhoneNumber){
         throw new Error("please add loan taker phone number");
     }
 
-    const isLoanGiverExist = await User.findOne({phoneNumber: payload.loanGiver_phoneNumber})
+    const isLoanGiverExist = await User.findOne({phoneNumber: payload.loanGiverPhoneNumber})
 
     if(!isLoanGiverExist){
         await User.create({
-            phoneNumber: payload.loanGiver_phoneNumber,
-            name: payload.name
+            phoneNumber: payload.loanGiverPhoneNumber,
+            name: payload.loanGiverName
         })
     }
 
     const createTransactionId = `tran-${Math.round(Math.random()*1000)}-${Date.now()}`
     const {amount, reason} = payload
 
-    const loanTaker_Info = await User.findOne({phoneNumber: payload.loanTaker_phoneNumber}).select("name phoneNumber")
-    const loanGiver_Info = await User.findOne({phoneNumber: payload.loanGiver_phoneNumber}).select("name phoneNumber")
+    const loanTaker_Info = await User.findOne({phoneNumber: payload.loanTakerPhoneNumber}).select("name phoneNumber")
+    const loanGiver_Info = await User.findOne({phoneNumber: payload.loanGiverPhoneNumber}).select("name phoneNumber")
 
     const loanObjCreate = {
         transactionId: createTransactionId,
@@ -39,20 +41,23 @@ const loanPayableServices = async(payload: {name: string, loanTaker_phoneNumber:
 }
 
 const loanListServices = async(phoneNumber : string)=>{
-    const list = await Payable.find({loanTaker_phoneNumber: phoneNumber})
-     const totalLoan = list.reduce((prev, curr)=> prev + curr.amount, 0)
-    return {list, totalLoan}
+    const list = await Payable.find({"loanTaker_Info.phoneNumber": phoneNumber})
+     const total = list.reduce((prev, curr)=> prev + curr.amount, 0)
+    return {list, total}
 }
 
 const receivableListServices = async(phoneNumber : string)=>{
-    const list = await Payable.find({loanGiver_phoneNumber: phoneNumber})
-    const totalLoan = list.reduce((prev, curr)=> prev + curr.amount, 0)
-    return {list, totalLoan}
+    const list = await Payable.find({"loanGiver_Info.phoneNumber": phoneNumber})
+    const total = list.reduce((prev, curr)=> prev + curr.amount, 0)
+    return {list, total}
 }
 
-const updateLoanServices = async(payload: {amount: string, note: string}, transactionId: string, isFullPay: boolean)=>{
+const updateLoanServices = async(payload: {amount: number, note: string}, transactionId: string, isFullPay: boolean)=>{
     const record = await Payable.findOne({transactionId: transactionId})
-    const amount = parseInt(payload.amount)
+    const amount = payload.amount
+
+    // console.log(payload)
+    // console.log(isFullPay)
 
     let updateLoan
 
@@ -60,24 +65,24 @@ const updateLoanServices = async(payload: {amount: string, note: string}, transa
         throw new Error("transactionId did not match and transaction not found");
     }
 
-    if(isFullPay){
-        updateLoan = await Payable.findOneAndUpdate({transactionId: transactionId}, 
-        {
-            amount: 0
-        }, {new: true})
-
-        return updateLoan
-    }
+    const noteEntry: INote = {
+    noteMessage: isFullPay ? "Full paid" : payload.note || "",
+    amount,
+    time: new Date(),
+  };
 
     if(amount > record.amount){
         throw new Error(`deu loan is ${record.amount}. enter amount less than ${record.amount}`);
     }
 
-    updateLoan = await Payable.findOneAndUpdate({transactionId: transactionId}, 
-        {
-            $inc: {amount: -amount},
-            $set: {notes: [...record.notes, payload.note]}
-        }, {new: true})
+    let updateDoc : any = {$inc: {amount: -amount}}
+
+    
+    updateDoc.$push = {
+        notes: noteEntry
+    }
+    
+    updateLoan = await Payable.findOneAndUpdate({transactionId: transactionId}, updateDoc, {new: true})
 
     return updateLoan
 }
