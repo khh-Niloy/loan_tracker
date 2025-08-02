@@ -6,8 +6,8 @@ export interface INote{
 
 export interface IPayable{
     amount: number,
-    loanTaker_Info: String,
-    loanGiver_Info: String,
+    loanTaker_Info: string,
+    loanGiver_Info: string,
     transactionId: string,
     notes: INote[],
     reason: string

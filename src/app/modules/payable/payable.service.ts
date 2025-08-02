@@ -59,8 +59,6 @@ const updateLoanServices = async(payload: {amount: number, note: string}, transa
     // console.log(payload)
     // console.log(isFullPay)
 
-    let updateLoan
-
     if(!record){
         throw new Error("transactionId did not match and transaction not found");
     }
@@ -75,14 +73,13 @@ const updateLoanServices = async(payload: {amount: number, note: string}, transa
         throw new Error(`deu loan is ${record.amount}. enter amount less than ${record.amount}`);
     }
 
-    let updateDoc : any = {$inc: {amount: -amount}}
-
+    const updateDoc: { $inc: { amount: number }; $push?: { notes: INote } } = { $inc: { amount: -amount } };
     
     updateDoc.$push = {
         notes: noteEntry
     }
     
-    updateLoan = await Payable.findOneAndUpdate({transactionId: transactionId}, updateDoc, {new: true})
+    const updateLoan = await Payable.findOneAndUpdate({transactionId: transactionId}, updateDoc, {new: true})
 
     return updateLoan
 }

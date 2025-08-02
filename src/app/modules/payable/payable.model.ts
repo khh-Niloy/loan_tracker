@@ -15,8 +15,8 @@ const noteSchema = new Schema<INote>({
 })
 
 const payableSchema = new Schema<IPayable>({
-    loanTaker_Info: {type: loanTakerAndGiver, required: true, _id: false},
-    loanGiver_Info: {type: loanTakerAndGiver, required: true, _id: false},
+    loanTaker_Info: { ...loanTakerAndGiver.obj, required: true, _id: false },
+    loanGiver_Info: { ...loanTakerAndGiver.obj, required: true, _id: false },
     amount: {type: Number, required: true},
     transactionId: {type: String, required: true},
     // status: {type: String},
