@@ -7,7 +7,7 @@
     "server": "ts-node-dev --respawn --transpile-only src/server.ts",
     "lint": "npx eslint ./src",
     "build": "npm install --force && tsc",
-    "start": "node ./dist/server.js"
+    "start": "node dist/server.js"
   },
   "repository": {
     "type": "git",
