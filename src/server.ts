@@ -1,11 +1,12 @@
 import { app } from "./app"
 import mongoose from "mongoose";
+import { envVars } from "./app/config/envVars";
 
 const startServer = async()=>{
-    await mongoose.connect("mongodb+srv://khhniloy0:xWHroCdA4S4fsrqg@cluster0.m65dh.mongodb.net/loan-tracker?appName=Cluster0");
+    await mongoose.connect(envVars.MONGO_URI);
     console.log("✅ mongoose connected");
-    app.listen(8000, ()=>{
-        console.log("server is running at 8000 port")
+    app.listen(envVars.PORT, ()=>{
+        console.log("server is running at 8000")
     })
 }
 
