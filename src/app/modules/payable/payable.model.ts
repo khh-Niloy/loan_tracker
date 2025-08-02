@@ -6,8 +6,6 @@ const loanTakerAndGiver = new Schema({
     phoneNumber: {type: String}
 })
 
-export const loanTakerAndGiverModel = model("loanTakerAndGiverModel", loanTakerAndGiver)
-
 const noteSchema = new Schema<INote>({
     noteMessage: {type: String},
     amount: {type: Number},

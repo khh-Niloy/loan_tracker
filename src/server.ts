@@ -1,14 +1,19 @@
-import { app } from "./app"
-import mongoose from "mongoose";
+// src/server.ts
 
-const startServer = async()=>{
-    await mongoose.connect("mongodb+srv://khhniloy0:xWHroCdA4S4fsrqg@cluster0.m65dh.mongodb.net/loan-tracker?appName=Cluster0");
-    console.log("✅ mongoose connected");
-    app.listen(8000, ()=>{
-        console.log("server is running at 8000 port")
-    })
+import mongoose from "mongoose"
+import { envVars } from "./app/config/envVars"
+import app from "./app"
+
+let isConnected = false
+
+const connectToDB = async () => {
+  if (!isConnected) {
+    await mongoose.connect(envVars.MONGO_URI)
+    console.log("✅ mongoose connected")
+    isConnected = true
+  }
 }
 
-(async () => {
-    await startServer();
-})();
+connectToDB() // Called once per cold start
+
+export default app // ✅ Vercel looks for this

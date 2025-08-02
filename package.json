@@ -7,7 +7,7 @@
     "server": "ts-node-dev --respawn --transpile-only src/server.ts",
     "lint": "npx eslint ./src",
     "build": "npm install --force && tsc",
-    "start": "node ./dist/server.js"
+    "start": "node dist/server.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.5",
