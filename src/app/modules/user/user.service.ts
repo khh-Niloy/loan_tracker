@@ -12,16 +12,26 @@ const createUserService = async(payload: Partial<IUser>)=>{
     }
     const isPhoneNumberAlreadyExist = await User.findOne({phoneNumber: payload.phoneNumber})
 
-    if(isPhoneNumberAlreadyExist){
-        await User.findOneAndUpdate({phoneNumber: payload.phoneNumber}, {name: payload.name})
-        await Payable.updateMany({"loanGiver_Info.phoneNumber": payload.phoneNumber}, {$set: {"loanGiver_Info.name": payload.name}}, {new: true})
-        return null
-    }
-
     const token = generateToken(payload)
 
-    const newUser = await User.create(payload)
-    return {newUser, token}
+    if(!isPhoneNumberAlreadyExist){
+        const person = await User.create(payload)
+        return {person, token}
+    }
+
+    const userName = await User.findOne({phoneNumber: payload.phoneNumber})
+
+    const person = {
+        name: userName?.name,
+        phoneNumber: userName?.phoneNumber
+    }
+
+    if(userName?.name !== payload.name){
+        await User.findOneAndUpdate({phoneNumber: payload.phoneNumber}, {name: payload.name})
+        await Payable.updateMany({"loanGiver_Info.phoneNumber": payload.phoneNumber}, {$set: {"loanGiver_Info.name": payload.name}}, {new: true})
+    }
+    console.log({person, token})
+    return {person, token}
 }
 
 export const userServices = {
