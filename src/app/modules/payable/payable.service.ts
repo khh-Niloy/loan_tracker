@@ -3,6 +3,7 @@ import { INote, IPayable } from "./payable.interface";
 import { Payable } from "./payable.model";
 
 const loanPayableServices = async(payload: {loanGiverName: string, loanTakerPhoneNumber: string, loanGiverPhoneNumber : string} & Partial<IPayable>)=>{
+
     if(!payload.amount){
         throw new Error("please add an amount");
     }
@@ -11,6 +12,10 @@ const loanPayableServices = async(payload: {loanGiverName: string, loanTakerPhon
 
     if(!payload.loanTakerPhoneNumber){
         throw new Error("please add loan taker phone number");
+    }
+
+    if(!payload.loanGiverName){
+        throw new Error("please add loan giver name");
     }
 
     const isLoanGiverExist = await User.findOne({phoneNumber: payload.loanGiverPhoneNumber})
@@ -28,6 +33,8 @@ const loanPayableServices = async(payload: {loanGiverName: string, loanTakerPhon
     const loanTaker_Info = await User.findOne({phoneNumber: payload.loanTakerPhoneNumber}).select("name phoneNumber")
     const loanGiver_Info = await User.findOne({phoneNumber: payload.loanGiverPhoneNumber}).select("name phoneNumber")
 
+    console.log(loanGiver_Info, loanTaker_Info)
+
     const loanObjCreate = {
         transactionId: createTransactionId,
         amount,
@@ -41,6 +48,7 @@ const loanPayableServices = async(payload: {loanGiverName: string, loanTakerPhon
 }
 
 const loanListServices = async(phoneNumber : string)=>{
+    console.log(phoneNumber)
     const list = await Payable.find({"loanTaker_Info.phoneNumber": phoneNumber})
      const total = list.reduce((prev, curr)=> prev + curr.amount, 0)
     return {list, total}

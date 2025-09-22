@@ -5,7 +5,7 @@ import cors from "cors"
 
 export const app = express()
 app.use(cors({
-    origin: ["*"], credentials: true
+    origin: ["http://localhost:3000", "https://loan-tracker-frontend-rose.vercel.app"], credentials: true
 }))
 
 app.use(cookieParser());

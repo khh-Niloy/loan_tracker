@@ -2,7 +2,6 @@ import { model, Schema } from "mongoose";
 import { INote, IPayable } from "./payable.interface";
 
 const loanTaker_Info = new Schema({
-    name: {type: String},
     phoneNumber: {type: String}
 })
 
@@ -18,7 +17,7 @@ const noteSchema = new Schema<INote>({
 })
 
 const payableSchema = new Schema<IPayable>({
-    loanTaker_Info: { type: loanTaker_Info, required: true, _id: false },
+    loanTaker_Info: { type: loanTaker_Info, _id: false },
     loanGiver_Info: { type: loanGiver_Info, required: true, _id: false },
     amount: {type: Number, required: true},
     transactionId: {type: String, required: true},

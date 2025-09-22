@@ -13,9 +13,7 @@ const createUser = async(req: Request, res: Response)=>{
             });
         }
 
-        const { newUser, token } = result;
-
-        res.cookie("accessToken", token, {
+        res.cookie("accessToken", result.token, {
   httpOnly: false,
   secure: false,
   sameSite: 'lax', // or 'none' + HTTPS for cross-domain
@@ -24,7 +22,7 @@ const createUser = async(req: Request, res: Response)=>{
 
         res.status(201).json({
             message: "user created",
-            data: { newUser, token }
+            data: result
         });
     } catch (error) {
         res.status(400).json({
